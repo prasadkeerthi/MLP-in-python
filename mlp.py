@@ -1,6 +1,7 @@
 import numpy as np
 import math
 
+
 class MLP:
     def __init__(self, layers):
         self.shape = layers
