@@ -1,0 +1,22 @@
+training the XOR function
+inputs:  [0. 0.] output:  0.19 (Actual) 0.0
+inputs:  [1. 0.] output:  0.97 (Actual) 1.0
+inputs:  [0. 1.] output:  0.97 (Actual) 1.0
+inputs:  [1. 1.] output:  -0.13 (Actual) 0.0
+training the sin function
+Training on 150 rows
+
+mean absolute error is  0.8379320424893881
+mean absolute error is  0.16363589242263865
+mean absolute error is  0.2124685058033815
+mean absolute error is  0.16101336269737265
+mean absolute error is  0.15700443733656377
+mean absolute error is  0.1568650225875493
+mean absolute error is  0.15688008759287264
+mean absolute error is  0.15690331562743454
+mean absolute error is  0.15692303150686004
+mean absolute error is  0.15693923859022274
+mean absolute error after testing for 50 rows  is 0.0684170104572599
+
+
+The error significantly reduced since the first random weights and performed better on the test set
