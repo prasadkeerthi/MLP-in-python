@@ -3,13 +3,13 @@ import math
 
 
 class MLP:
+
     def __init__(self, layers):
         self.shape = layers
-
         self.z1 = []
-
         self.z1.append(np.ones(self.shape[0]+1))
         n = len(layers)
+
         for i in range(1, n):
             self.z1.append(np.ones(self.shape[i]))
 
@@ -20,6 +20,7 @@ class MLP:
         self.dw = [0]*len(self.Wt)
         self.adjust_Wt()
 
+    #feed the input to mlp and calculate the result using weights
     def forward_pass(self, input_data):
 
         self.z1[0][0:-1] = input_data
@@ -28,6 +29,7 @@ class MLP:
                 np.dot(self.z1[i-1], self.Wt[i-1]))
         return self.z1[-1]
 
+    #calculate loss and update weights
     def backward_pass(self, Y, alpha=0.1, cr=0.1):
 
         difference_error = Y - self.z1[-1]
@@ -59,7 +61,7 @@ class MLP:
             Z = np.random.random((self.z1[i].size, self.z1[i+1].size))
             self.Wt[i] = Z
 
-
+#train XOR model
 def train_XOR(model, input_dataset, epochs=2000, alpha=.2, lr=0.1):
 
     for i in range(epochs):
@@ -73,11 +75,49 @@ def train_XOR(model, input_dataset, epochs=2000, alpha=.2, lr=0.1):
         print(i, input_dataset['input'][i], '%.2f' % o[0])
         print('(expected %.2f)' % input_dataset['output'][i])
 
+#train and test sin model
+def train_sin_model():
+        layers = [1, 10, 10, 10, 10, 10, 1]
+        sin_model = MLP(layers)
+        input_dataset = np.zeros(200, dtype=[(
+            'x1',  float, 1), ('x2',  float, 1), ('x3',  float, 1), ('x4',  float, 1), ('y', float, 1)])
+        input_dataset['x1'] = np.random.uniform(-1, 1, 200)
+        input_dataset['x2'] = np.random.uniform(-1, 1, 200)
+        input_dataset['x3'] = np.random.uniform(-1, 1, 200)
+        input_dataset['x4'] = np.random.uniform(-1, 1, 200)
+        input_dataset['y'] = np.sin(
+            input_dataset['x1']-input_dataset['x2']+input_dataset['x3']-input_dataset['x4'])
+
+        print("Training on 150 rows\n")
+        for k in range(1000):
+            for i in range(150):
+
+                inputarray = np.asarray([input_dataset['x1'][i]-input_dataset['x2']
+                                        [i]+input_dataset['x3'][i]-input_dataset['x4'][i]])
+
+                av = sin_model.forward_pass(inputarray)
+                sin_model.backward_pass(input_dataset['y'][i], 0.2)
+                if k % 100 == 0 and i == 0:
+                    print("mae is ", np.absolute(
+                        np.subtract(input_dataset['y'][i], av)).mean())
+
+        total_difference_error = 0
+        for i in range(149, 200):
+
+            av = sin_model.forward_pass(
+                [input_dataset['x1'][i]-input_dataset['x2'][i]+input_dataset['x3'][i]-input_dataset['x4'][i]])
+            total_difference_error += np.absolute(
+                np.subtract(input_dataset['y'][i], av).mean())
+
+        print("mean absolute difference_error after testing for 50 rows  is",
+            total_difference_error/50)
+
+
 def main():
     layers = [2, 3, 3, 1]
     xor_model = MLP(layers)
-    input_dataset = np.zeros(4, dtype=[('input',  float, 2), ('output', float, 1)])
-
+    input_dataset = np.zeros(
+        4, dtype=[('input',  float, 2), ('output', float, 1)])
 
     xor_model.adjust_Wt()
     input_dataset[0] = (0, 0), 0
@@ -86,43 +126,11 @@ def main():
     input_dataset[3] = (1, 1), 0
     train_XOR(xor_model, input_dataset)
 
-
     print("Learning the sin function")
-    layers = [1, 10, 10, 10, 10, 10, 1]
-    sin_model = MLP(layers)
-    input_dataset = np.zeros(200, dtype=[(
-        'x1',  float, 1), ('x2',  float, 1), ('x3',  float, 1), ('x4',  float, 1), ('y', float, 1)])
-    input_dataset['x1'] = np.random.uniform(-1, 1, 200)
-    input_dataset['x2'] = np.random.uniform(-1, 1, 200)
-    input_dataset['x3'] = np.random.uniform(-1, 1, 200)
-    input_dataset['x4'] = np.random.uniform(-1, 1, 200)
-    input_dataset['y'] = np.sin(
-        input_dataset['x1']-input_dataset['x2']+input_dataset['x3']-input_dataset['x4'])
 
-    print("Training on 150 rows\n")
-    for k in range(1000):
-        for i in range(150):
+    train_sin_model()
+    
 
-            inputarray = np.asarray([input_dataset['x1'][i]-input_dataset['x2']
-                                    [i]+input_dataset['x3'][i]-input_dataset['x4'][i]])
-
-            av = sin_model.forward_pass(inputarray)
-            sin_model.backward_pass(input_dataset['y'][i], 0.2)
-            if k % 100 == 0 and i == 0:
-                print("mae is ", np.absolute(
-                    np.subtract(input_dataset['y'][i], av)).mean())
-
-
-    total_difference_error = 0
-    for i in range(149, 200):
-
-        av = sin_model.forward_pass(
-            [input_dataset['x1'][i]-input_dataset['x2'][i]+input_dataset['x3'][i]-input_dataset['x4'][i]])
-        total_difference_error += np.absolute(
-            np.subtract(input_dataset['y'][i], av).mean())
-
-    print("mean absolute difference_error after testing for 50 rows  is",
-        total_difference_error/50)
 
 if __name__ == "__main__":
     main()
